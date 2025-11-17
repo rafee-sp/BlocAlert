@@ -1,0 +1,135 @@
+spring:
+  application:
+    name: BlocAlert
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:validate}  # Override per environment
+    show-sql: ${SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 10
+          order_inserts: true
+          order_updates: true
+        generate_statistics: false
+
+
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI}
+          audiences:
+            - ${AUDIENCE}
+  
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 10
+          min-idle: 1
+          max-idle: 5
+  
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: ${KAFKA_GROUP_ID}
+      properties:
+        spring.json.trusted.packages: com.rafee.blocalert.blocalert.*
+
+# External APIs
+coingecko:
+  url: ${COINGECKO_URL:https://api.coingecko.com/api/v3}
+  secret: ${COINGEKCO_API_KEY}
+
+# Email Configuration
+mail:
+  from: ${SENDER_MAIL}
+  name: ${SENDER_NAME:BlocAlert}
+  rate-limit: ${MAIL_RATE_LIMIT:1.0}
+
+# Sms configuration
+sms:
+  sid: ${TWILIO_SID}
+  auth-id: ${TWILIO_AUTH_ID}
+  phone: ${TWILIO_PHONE}
+  rate-limit: ${SMS_RATE_LIMIT:1.0}
+  region: ${SMS_REGION:IN}
+
+# Auth0 Configuration
+auth0:
+  management:
+    domain: ${AUTH0_DOMAIN}
+    client-id: ${AUTH0_MANAGEMENT_CLIENT_ID}
+    client-secret: ${AUTH0_MANAGEMENT_CLIENT_SECRET}
+  audience: ${AUTH0_AUDIENCE}
+  role-id:
+    free: ${FREE_ROLE_ID}
+    premium: ${PREMIUM_ROLE_ID}
+  webhook:
+    secret: ${AUTH0_WEBHOOK_SECRET}
+
+# Stripe Configuration
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  price-id: ${STRIPE_PRICE_ID}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.yourcompany.blocalert: DEBUG
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:WARN}
+    org.springframework.web: WARN
+    org.springframework.security: DEBUG
+    org.hibernate.engine.jdbc.batch.internal.BatchingBatch: DEBUG
+    org.hibernate.engine.jdbc.batch.internal.AbstractBatchImpl: DEBUG
+
+# Application Configuration
+application:
+  free-alert-limit: ${FREE_USER_LIMIT:5}
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  backend-url: ${BACKEND_URL:http://localhost:8080}
+
+# Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+      base-path: /actuator

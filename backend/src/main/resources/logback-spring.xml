@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Log format: timestamp [thread] LEVEL logger - [requestId] - message -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{requestId}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--Sends logs to Loki -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://localhost:3100/loki/api/v1/push</url>
+            <connectionTimeoutMs>2000</connectionTimeoutMs>
+            <requestTimeoutMs>5000</requestTimeoutMs>
+        </http>
+
+        <batches>
+            <batch maxItems="1000" maxSize="10mb" timeout="1s" />
+        </batches>
+
+        <format>
+            <label>
+                <pattern>application=${appName},level=%level</pattern>
+            </label>
+            <!-- Message json format-->
+            <message>
+                <pattern>
+                    {
+                    "timestamp": "%date{ISO8601}",
+                    "level": "%level",
+                    "thread": "%thread",
+                    "logger": "%logger",
+                    "requestId": "%X{requestId}",
+                    "message": "%replace(%msg){'\r|\n',' '}",
+                    "exception": "%replace(%ex{full}){'\r|\n',' '}"
+                    }
+                </pattern>
+            </message>
+        </format>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+</configuration>

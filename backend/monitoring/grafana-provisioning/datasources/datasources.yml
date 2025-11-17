@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  # Connect to Prometheus
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090  # Container name from docker-compose
+    isDefault: true
+    editable: true
+
+  # Connect to Loki
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100  # Container name from docker-compose
+    editable: true
